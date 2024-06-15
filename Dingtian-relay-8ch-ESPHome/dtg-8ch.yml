@@ -1,0 +1,172 @@
+esphome:
+  name: dtg-8ch
+  platform: ESP32
+  board: esp-wrover-kit
+
+# uncomment if WiFi is used
+#wifi:
+#  ssid: {wifi_ssid}
+#  password: {wifi_password}
+
+web_server:
+  port: 80
+logger:
+ota:
+
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: America/New_York
+    servers:
+     - 0.pool.ntp.org
+     -
+
+mqtt:
+  broker: 192.168.1.1
+  username: {mqtt_user}
+  password: {mqtt_password}
+  log_topic: null
+# comment out the whole section if WiFi is used
+ethernet:
+  type: JL1101
+  mdc_pin: 23
+  mdio_pin: 18
+  clk_mode: GPIO17_OUT
+  power_pin: 0
+  phy_addr: 1
+#  manual_ip:
+#    static_ip: 192.168.1.175
+#    gateway: 192.168.1.1
+#    subnet: 255.255.255.0
+
+sn74hc165:
+  - id: sn74hc165_hub
+    clock_pin:
+      number: GPIO14
+      allow_other_uses: true
+    data_pin: GPIO16
+    load_pin: GPIO12
+
+binary_sensor:
+  - platform: gpio
+    name: "Input 8"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 0
+  - platform: gpio
+    name: "Input 7"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 1
+  - platform: gpio
+    name: "Input 6"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 2
+  - platform: gpio
+    name: "Input 5"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 3
+  - platform: gpio
+    name: "Input 4"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 4
+  - platform: gpio
+    name: "Input 3"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 5
+  - platform: gpio
+    name: "Input 2"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 6
+  - platform: gpio
+    name: "Input 1"
+    pin:
+      sn74hc165: sn74hc165_hub
+      number: 7   
+  - platform: gpio
+    pin: GPIO34
+    name: "Factory reset button"
+    filters:
+      - delayed_on: 20ms
+      - delayed_off: 20ms
+      - invert:      
+  
+sn74hc595:
+  - id: sn74hc595_hub
+    data_pin: GPIO13
+    clock_pin:
+      number: GPIO14
+      allow_other_uses: true
+    latch_pin: GPIO15
+    oe_pin: GPIO32
+
+switch:
+  - platform: gpio
+    name: "Relay 1"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 7
+  - platform: gpio
+    name: "Relay 2"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 6    
+  - platform: gpio
+    name: "Relay 3"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 5    
+  - platform: gpio
+    name: "Relay 4"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 4
+  - platform: gpio
+    name: "Relay 5"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 3     
+  - platform: gpio
+    name: "Relay 6"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 2     
+  - platform: gpio
+    name: "Relay 7"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 1  
+  - platform: gpio
+    name: "Relay 8"
+    pin:
+      sn74hc595: sn74hc595_hub
+      number: 0
+  - platform: gpio
+    name: "Factory LED"
+    id: factory_led
+    pin:  GPIO02
+
+
+# below config was not tested due to no RS485 or CAN devices
+
+# it is either CAN or RS485 version of the PCB. If using RS485 board, comment out canbus section below
+#uart:
+#  tx_pin: GPIO01
+#  rx_pin: GPIO03
+#  baud_rate: 9600
+#  
+#modbus:
+#  flow_control_pin: GPIO33
+#
+# it is either CAN or RS485 version of the PCB. If using CAN board, comment out uart and modbus sections above
+#canbus:
+#  - platform: esp32_can
+#    tx_pin: GPIO05
+#    rx_pin: GPIO04
+#    can_id: 4
+#    bit_rate: 50kbps
